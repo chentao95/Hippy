@@ -38,12 +38,12 @@ enum class RefreshStatus {
 class RefreshNodeDelegate {
 public:
   virtual ~RefreshNodeDelegate() = default;
-  virtual void onHeadRefreshFinish() {}
-  virtual void onStartRefresh() {}
-  virtual void onEndRefresh() {}
-  virtual void onStateChange() {}
-  virtual void onStateChange(RefreshStatus refreshStatus) {}
-  virtual void onRefreshing() {}
+  virtual void OnHeadRefreshFinish() {}
+  virtual void OnStartRefresh() {}
+  virtual void OnEndRefresh() {}
+  virtual void OnStateChange() {}
+  virtual void OnStateChange(RefreshStatus refreshStatus) {}
+  virtual void OnRefreshing() {}
 };
 class RefreshNode : public ArkUINode {
 protected:

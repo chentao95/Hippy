@@ -24,6 +24,7 @@
 
 #include "renderer/arkui/arkui_node.h"
 #include "renderer/arkui/arkui_node_registry.h"
+#include "renderer/arkui/refresh_node.h"
 
 
 namespace hippy {
@@ -33,12 +34,23 @@ inline namespace native {
 class WaterFlowNodeDelegate {
 public:
   virtual ~WaterFlowNodeDelegate() = default;
-  virtual void onScrollIndex(int32_t firstIndex, int32_t lastIndex) {}
+  virtual void OnScrollIndex(int32_t firstIndex, int32_t lastIndex) {}
   virtual void OnReachEnd() {}
+  virtual void OnScroll(float xOffset, float yOffset) {}
+  virtual void OnScrollStart() {}
+  virtual void OnScrollStop() {}
+  virtual void OnTouch(int32_t actionType) {}
+  virtual void OnHeadRefreshFinish() {}
+  virtual void OnStartRefresh() {}
+  virtual void OnEndRefresh() {}
+  virtual void OnStateChange(RefreshStatus refreshStatus) {}
+  virtual void OnRefreshing() {}
+  virtual void OnReachStart() {}
 };
 class WaterFlowNode : public ArkUINode {
 protected:
   WaterFlowNodeDelegate *WaterFlowNodeDelegate_ = nullptr;
+  int32_t itemIndex_ = -1;
 public:
   WaterFlowNode();
   ~WaterFlowNode();
@@ -53,7 +65,9 @@ public:
   void ScrollToIndex(int32_t index, bool animated, bool isScrollAlignStart);
   void SetColumnsTemplate(std::string columnsTemplate);
   void SetNodeDelegate(WaterFlowNodeDelegate *waterFlowNodeDelegate);
-  // void OnNodeEvent(ArkUI_NodeEvent *event);
+  void SetItemIndex(int32_t index) { itemIndex_ = index; }
+  void SetPadding(float left, float top, float right, float bottom);
+  void OnNodeEvent(ArkUI_NodeEvent *event) override;
   // void OnTouchEvent(ArkUI_UIInputEvent *event);
 };
 

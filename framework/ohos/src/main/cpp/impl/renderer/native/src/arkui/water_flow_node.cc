@@ -56,31 +56,37 @@ void WaterFlowNode::RemoveAllChildren() {
     }
   }
 }
-// void WaterFlowNode::OnNodeEvent(ArkUI_NodeEvent *event) {
-//   if (WaterFlowNodeDelegate_ == nullptr) {
-//     return;
-//   }
-//   auto eventType = OH_ArkUI_NodeEvent_GetEventType(event);
-//   auto nodeComponentEvent = OH_ArkUI_NodeEvent_GetNodeComponentEvent(event);
-//   if (eventType == ArkUI_NodeEventType::NODE_WATER_FLOW_ON_SCROLL_INDEX) {
-//     int32_t firstIndex = nodeComponentEvent->data[0].i32;
-//     int32_t lastIndex = nodeComponentEvent->data[1].i32;
-//     int32_t centerIndex = nodeComponentEvent->data[2].i32;
-//     WaterFlowNodeDelegate_->OnScrollIndex(firstIndex, lastIndex, centerIndex);
-//   } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_SCROLL) {
-//     float x = nodeComponentEvent->data[0].f32;
-//     float y = nodeComponentEvent->data[1].f32;
-//     WaterFlowNodeDelegate_->OnScroll(x, y);
-//   } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_SCROLL_START) {
-//     WaterFlowNodeDelegate_->OnScrollStart();
-//   } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_SCROLL_STOP) {
-//     WaterFlowNodeDelegate_->OnScrollStop();
-//   } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_REACH_START) {
-//     WaterFlowNodeDelegate_->OnReachStart();
-//   } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_REACH_END) {
-//     WaterFlowNodeDelegate_->OnReachEnd();
-//   }
-// }
+
+void WaterFlowNode::SetPadding(float left, float top, float right, float bottom) {
+  ArkUI_NumberValue value[] = {{top}, {right}, {bottom}, {left}};
+  ArkUI_AttributeItem item = {value, sizeof(value) / sizeof(ArkUI_NumberValue), nullptr, nullptr};
+  MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_PADDING, &item));
+}
+
+void WaterFlowNode::OnNodeEvent(ArkUI_NodeEvent *event) {
+  if (WaterFlowNodeDelegate_ == nullptr) {
+    return;
+  }
+  auto eventType = OH_ArkUI_NodeEvent_GetEventType(event);
+  auto nodeComponentEvent = OH_ArkUI_NodeEvent_GetNodeComponentEvent(event);
+  if (eventType == ArkUI_NodeEventType::NODE_WATER_FLOW_ON_SCROLL_INDEX) {
+    int32_t firstIndex = nodeComponentEvent->data[0].i32;
+    int32_t lastIndex = nodeComponentEvent->data[1].i32;
+    WaterFlowNodeDelegate_->OnScrollIndex(firstIndex, lastIndex);
+  } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_SCROLL) {
+    float x = nodeComponentEvent->data[0].f32;
+    float y = nodeComponentEvent->data[1].f32;
+    WaterFlowNodeDelegate_->OnScroll(x, y);
+  } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_SCROLL_START) {
+    WaterFlowNodeDelegate_->OnScrollStart();
+  } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_SCROLL_STOP) {
+    WaterFlowNodeDelegate_->OnScrollStop();
+  } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_REACH_START) {
+    WaterFlowNodeDelegate_->OnReachStart();
+  } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_REACH_END) {
+    WaterFlowNodeDelegate_->OnReachEnd();
+  }
+}
 HRPoint WaterFlowNode::GetScrollOffset() {
   auto item = NativeNodeApi::GetInstance()->getAttribute(nodeHandle_, NODE_SCROLL_OFFSET);
   float x = item->value[0].f32;

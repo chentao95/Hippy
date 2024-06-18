@@ -30,8 +30,7 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
-WaterfallView::WaterfallView(std::shared_ptr<NativeRenderContext> &ctx) : BaseView(ctx),
-  padding_(10.0f, 20.0f, 10.0f, 20.0f) {
+WaterfallView::WaterfallView(std::shared_ptr<NativeRenderContext> &ctx) : BaseView(ctx) {
   colNode_.AddChild(refreshNode_);
   refreshNode_.AddChild(scrollNode_);
   scrollNode_.AddChild(columNode_);
@@ -48,7 +47,6 @@ void WaterfallView::Init() {
 ColumnNode &WaterfallView::GetLocalRootArkUINode() { return colNode_; }
 
 bool WaterfallView::SetProp(const std::string &propKey, const HippyValue &propValue) {
-  std::lock_guard<std::mutex> lock(mutex_);
   if (propKey == "bounces") {
     bool b = HRValueUtils::GetBool(propValue, true);
     waterFlowNode_.SetScrollEdgeEffect(b);
@@ -184,20 +182,20 @@ void WaterfallView::SendOnReachedEvent() {
   HREventUtils::SendComponentEvent(headerView_->GetCtx(), headerView_->GetTag(), HREventUtils::EVENT_RECYCLER_LOAD_MORE, nullptr);
 }
 
-void WaterfallView::onHeadRefreshFinish() {
-  FOOTSTONE_DLOG(INFO) << "WaterfallView onHeadRefreshFinish: onHeadRefreshFinish=";
+void WaterfallView::OnHeadRefreshFinish() {
+  FOOTSTONE_DLOG(INFO) << "WaterfallView OnHeadRefreshFinish: OnHeadRefreshFinish=";
 }
-void WaterfallView::onStartRefresh() {
+void WaterfallView::OnStartRefresh() {
   isRefreshing_ = true;
   HREventUtils::SendComponentEvent(headerView_->GetCtx(), headerView_->GetTag(), "onRefreshStart", nullptr);
 }
 
-void WaterfallView::onEndRefresh() {
+void WaterfallView::OnEndRefresh() {
   isRefreshing_ = false; // 标记刷新结束
   HREventUtils::SendComponentEvent(headerView_->GetCtx(), headerView_->GetTag(), "onRefreshEnd", nullptr);
 }
 
-void WaterfallView::onStateChange(RefreshStatus refreshStatus) {
+void WaterfallView::OnStateChange(RefreshStatus refreshStatus) {
   if (headerView_ && refreshStatus == RefreshStatus::Drag) {
     HippyValueArrayType params;
     params.emplace_back(CONTENT_OFFSET, headerView_->GetHeight());
@@ -206,13 +204,13 @@ void WaterfallView::onStateChange(RefreshStatus refreshStatus) {
   }
 }
 
-void WaterfallView::onRefreshing() {
+void WaterfallView::OnRefreshing() {
   if (headerView_) {
     HREventUtils::SendComponentEvent(headerView_->GetCtx(), headerView_->GetTag(),
                                     HREventUtils::EVENT_PULL_HEADER_RELEASED, nullptr);
   }
 }
-void WaterfallView::onScrollIndex(int32_t firstIndex, int32_t lastIndex) {
+void WaterfallView::OnScrollIndex(int32_t firstIndex, int32_t lastIndex) {
   // 更新滚动逻辑，例如：
   CheckSendReachEndEvent(lastIndex);
 }
