@@ -47,6 +47,7 @@ public:
 };
 class RefreshNode : public ArkUINode {
 protected:
+  RefreshNodeDelegate *RefreshNodeDelegate_;
 public:
   RefreshNode();
   ~RefreshNode();
@@ -54,6 +55,7 @@ public:
   void AddChild(ArkUINode &child);
   void InsertChild(ArkUINode &child, int32_t index);
   void RemoveChild(ArkUINode &child);
+  void SetNodeDelegate(RefreshNodeDelegate *RefreshNodeDelegate);
 };
 
 } // namespace native

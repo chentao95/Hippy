@@ -42,6 +42,13 @@ public:
   
 private:
   StackNode stackNode_;
+
+  std::string type_;
+  float width_ = 0.f;
+  float height_ = 0.f;
+
+protected:
+  void updateRenderViewFrame(const HRRect &frame, const HRPadding &padding);
 };
 
 } // namespace native

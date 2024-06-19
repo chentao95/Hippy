@@ -28,8 +28,23 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
+static constexpr ArkUI_NodeEventType WATERFLOW_NODE_EVENT_TYPES[] = {
+  NODE_WATER_FLOW_ON_SCROLL_INDEX,
+  NODE_SCROLL_EVENT_ON_SCROLL_START,
+  NODE_SCROLL_EVENT_ON_SCROLL_STOP,
+  NODE_SCROLL_EVENT_ON_REACH_START,
+  NODE_SCROLL_EVENT_ON_REACH_END,
+  NODE_EVENT_ON_APPEAR,
+  NODE_TOUCH_EVENT
+};
+
 WaterFlowNode::WaterFlowNode()
     : ArkUINode(NativeNodeApi::GetInstance()->createNode(ArkUI_NodeType::ARKUI_NODE_WATER_FLOW)) {
+  RegisterAppearEvent();
+  RegisterDisappearEvent();
+  for (auto eventType : WATERFLOW_NODE_EVENT_TYPES) {
+    MaybeThrow(NativeNodeApi::GetInstance()->registerNodeEvent(nodeHandle_, eventType, 0, nullptr));
+  }
 }
 
 WaterFlowNode::~WaterFlowNode() {}
@@ -85,6 +100,10 @@ void WaterFlowNode::OnNodeEvent(ArkUI_NodeEvent *event) {
     WaterFlowNodeDelegate_->OnReachStart();
   } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_REACH_END) {
     WaterFlowNodeDelegate_->OnReachEnd();
+  } else if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_APPEAR) {
+    WaterFlowNodeDelegate_->OnAppear();
+  } else if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_DISAPPEAR) {
+    WaterFlowNodeDelegate_->OnDisAppear();
   }
 }
 HRPoint WaterFlowNode::GetScrollOffset() {
@@ -116,11 +135,10 @@ void WaterFlowNode::ScrollToIndex(int32_t index, bool animated, bool isScrollAli
                                {.i32 = animated},
                                {.i32 = isScrollAlignStart ? ARKUI_SCROLL_ALIGNMENT_START : ARKUI_SCROLL_ALIGNMENT_END}};
   ArkUI_AttributeItem item = {value, sizeof(value) / sizeof(ArkUI_NumberValue), nullptr, nullptr};
-  MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_LIST_SCROLL_TO_INDEX, &item));
+  MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_WATER_FLOW_SCROLL_TO_INDEX, &item));
 }
 
 void WaterFlowNode::SetColumnsTemplate(std::string columnsTemplate) {
-//   ArkUI_NumberValue value[] = {{.string  = columnsTemplate}};
   ArkUI_AttributeItem item = {.string  = columnsTemplate.c_str()};
   MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_WATER_FLOW_COLUMN_TEMPLATE, &item));
 }

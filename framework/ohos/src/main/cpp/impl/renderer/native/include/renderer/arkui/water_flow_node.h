@@ -46,6 +46,8 @@ public:
   virtual void OnStateChange(RefreshStatus refreshStatus) {}
   virtual void OnRefreshing() {}
   virtual void OnReachStart() {}
+  virtual void OnAppear() {}
+  virtual void OnDisAppear() {}
 };
 class WaterFlowNode : public ArkUINode {
 protected:

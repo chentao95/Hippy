@@ -35,6 +35,14 @@ StackNode &WaterfallItemView::GetLocalRootArkUINode() { return stackNode_; }
 
 bool WaterfallItemView::SetProp(const std::string &propKey, const HippyValue &propValue) {
   if (propKey == "type") {
+    if (propValue.IsString()) {
+      propValue.ToString(type_);
+    } else if (propValue.IsNumber()) {
+      int32_t value = HRValueUtils::GetInt32(propValue);
+      type_ = std::to_string(value);
+    } else {
+      type_ = "NoType" + std::to_string(tag_);
+    }
     return true;
   }
   return BaseView::SetProp(propKey, propValue);
@@ -50,6 +58,12 @@ void WaterfallItemView::OnChildRemoved(std::shared_ptr<BaseView> const &childVie
   stackNode_.RemoveChild(childView->GetLocalRootArkUINode());
 }
 
+void WaterfallItemView::updateRenderViewFrame(const HRRect &frame, const HRPadding &padding) {
+  stackNode_.SetPosition(HRPosition(0, 0));
+  stackNode_.SetSize(HRSize(frame.width, frame.height));
+  width_ = frame.width;
+  height_ = frame.height;
+}
 } // namespace native
 } // namespace render
 } // namespace hippy

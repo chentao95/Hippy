@@ -32,11 +32,13 @@ inline namespace native {
 
 WaterfallView::WaterfallView(std::shared_ptr<NativeRenderContext> &ctx) : BaseView(ctx) {
   colNode_.AddChild(refreshNode_);
+  refreshNode_.SetNodeDelegate(this);
   refreshNode_.AddChild(scrollNode_);
   scrollNode_.AddChild(columNode_);
   scrollNode_.SetNodeDelegate(this);
   columNode_.AddChild(stackNode_);
   columNode_.AddChild(waterFlowNode_);
+  waterFlowNode_.SetNodeDelegate(this);
 }
 
 WaterfallView::~WaterfallView() {}
@@ -50,6 +52,7 @@ bool WaterfallView::SetProp(const std::string &propKey, const HippyValue &propVa
   if (propKey == "bounces") {
     bool b = HRValueUtils::GetBool(propValue, true);
     waterFlowNode_.SetScrollEdgeEffect(b);
+    FOOTSTONE_DLOG(INFO) << "SetProp : propKey" << propKey << ", propValue: " << propValue;
     return true;
   } else if (propKey == "contentInset") {
       HippyValueObjectType data;
@@ -98,13 +101,16 @@ void WaterfallView::Call(const std::string &method, const std::vector<HippyValue
     bool animated = HRValueUtils::GetBool(params[2], false);
     waterFlowNode_.ScrollTo(xOffset, yOffset, animated);
   } else if (method == "scrollToTop") {
-    waterFlowNode_.ScrollToIndex(0, 0, true);
+    waterFlowNode_.ScrollToIndex(0, true, true);
   }
 }
 
 void WaterfallView::OnChildInserted(std::shared_ptr<BaseView> const &childView, int32_t index) {
   BaseView::OnChildInserted(childView, index);
   colNode_.InsertChild(childView->GetLocalRootArkUINode(), index);
+  refreshNode_.InsertChild(childView->GetLocalRootArkUINode(), index);
+  scrollNode_.InsertChild(childView->GetLocalRootArkUINode(), index);
+  waterFlowNode_.InsertChild(childView->GetLocalRootArkUINode(), index);
 }
 
 void WaterfallView::OnChildRemoved(std::shared_ptr<BaseView> const &childView) {
@@ -114,13 +120,6 @@ void WaterfallView::OnChildRemoved(std::shared_ptr<BaseView> const &childView) {
 
 void WaterfallView::HandleOnChildrenUpdated() {
   waterFlowNode_.RemoveAllChildren();
-  for (uint32_t i = 0; i < children_.size(); i++) {
-    waterFlowNode_.AddChild(children_[i]->GetLocalRootArkUINode());
-
-    // auto waterFlowView = std::static_pointer_cast<WaterfallItemView>(children_[i]);
-    // waterFlowView->GetLocalRootArkUINode().SetStackNodeDelegate(this);
-    // waterFlowView->GetLocalRootArkUINode().SetItemIndex(static_cast<int32_t>(i));
-  }
   auto childrenCount = children_.size();
   if (childrenCount > 0) {
     if (children_[0]->GetViewType() == PULL_HEADER_VIEW_TYPE) {
@@ -166,7 +165,6 @@ void WaterfallView::EmitScrollEvent(const std::string& eventType) {
   layoutMeasurementObj.insert_or_assign("width", layoutSize.width);
   layoutMeasurementObj.insert_or_assign("height", layoutSize.height);
 
-
   HippyValueObjectType paramsObj;
   paramsObj.insert_or_assign("contentInset", contentInsetObj);
   paramsObj.insert_or_assign("contentOffset", contentOffsetObj);
@@ -210,8 +208,20 @@ void WaterfallView::OnRefreshing() {
                                     HREventUtils::EVENT_PULL_HEADER_RELEASED, nullptr);
   }
 }
+
+void WaterfallView::OnAppear() {
+  FOOTSTONE_DLOG(INFO) << "WaterfallView OnAppear: OnAppear=";
+  HandleOnChildrenUpdated();
+}
+
+void WaterfallView::OnDisAppear() {
+  FOOTSTONE_DLOG(INFO) << "WaterfallView OnDisAppear: OnDisAppear=";
+  headerView_->GetCtx()->GetNativeRender().lock()->RemoveEndBatchCallback(headerView_->GetCtx()->GetRootId(),
+    end_batch_callback_id_);
+}
+
 void WaterfallView::OnScrollIndex(int32_t firstIndex, int32_t lastIndex) {
-  // 更新滚动逻辑，例如：
+  // 更新滚动逻辑
   CheckSendReachEndEvent(lastIndex);
 }
 

@@ -46,6 +46,7 @@ void RefreshNode::RemoveChild(ArkUINode &child) {
   MaybeThrow(NativeNodeApi::GetInstance()->removeChild(nodeHandle_, child.GetArkUINodeHandle()));
 }
 
+void RefreshNode::SetNodeDelegate(RefreshNodeDelegate *refreshNodeDelegate) { RefreshNodeDelegate_ = refreshNodeDelegate; }
 } // namespace native
 } // namespace render
 } // namespace hippy

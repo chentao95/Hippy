@@ -63,6 +63,8 @@ public:
   void OnEndRefresh() override;
   void OnStateChange(RefreshStatus refreshStatus) override;
   void OnRefreshing() override;
+  void OnAppear() override;
+  void OnDisAppear() override;
 
 private:
   void HandleOnChildrenUpdated();
@@ -87,7 +89,7 @@ private:
   int32_t preloadItemNumber_ = 0;
   int32_t interItemSpacing_ = 0;
   int32_t columnSpacing_ = 0;
-  std::string columnsTemplate_ = "";
+  std::string columnsTemplate_ = "1fr 1fr";
 
   std::shared_ptr<PullHeaderView> headerView_ = nullptr;
   std::shared_ptr<PullFooterView> footerView_ = nullptr;
@@ -100,6 +102,8 @@ private:
   bool momentumScrollEndEventEnable_;
   bool onScrollEventEnable_;
   float lastScrollOffset_;
+
+  uint64_t end_batch_callback_id_ = 0;
 };
 
 } // namespace native
